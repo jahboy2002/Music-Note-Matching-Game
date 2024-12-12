@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Note Information</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            margin: 20px 0;
+            color: #333;
+        }
+
+        table {
+            width: 80%;
+            margin: 20px auto;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        th {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+
+        tr:hover {
+            background-color: #ddd;
+        }
+
+        img {
+            width: 50px;
+            height: auto;
+        }
+
+        .start-game {
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .start-game:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+    <h1>Music Note Information</h1>
+    <table>
+        <tr>
+            <th>ชื่อโน้ต<br>(ภาษาไทย)</th>
+            <th>ชื่อโน้ต<br>(ภาษาอังกฤษ)</th>
+            <th>รูปภาพ</th>
+        </tr>
+        <tr>
+            <td>โน้ตตัวกลม</td>
+            <td>Whole Note</td>
+            <td><img src="https://i.ibb.co/939bPRs/image.jpg" alt="Whole Note"></td>
+        </tr>
+        <tr>
+            <td>โน้ตตัวขาว</td>
+            <td>Half Note</td>
+            <td><img src="https://i.ibb.co/PhstBBs/image.jpg" alt="Half Note"></td>
+        </tr>
+        <tr>
+            <td>โน้ตตัวดำ</td>
+            <td>Quarter Note</td>
+            <td><img src="https://i.ibb.co/zsycKvy/image.jpg" alt="Quarter Note"></td>
+        </tr>
+        <tr>
+            <td>โน้ตตัวเขบ็ต1ชั้น</td>
+            <td>Eighth Note</td>
+            <td><img src="https://i.ibb.co/VvDhnSh/1.jpg" alt="Eighth Note"></td>
+        </tr>
+        <tr>
+            <td>โน้ตตัวเขบ็ต2ชั้น</td>
+            <td>Sixteenth Note</td>
+            <td><img src="https://i.ibb.co/zVFP0Gz/2.jpg" alt="Sixteenth Note"></td>
+        </tr>
+        <tr>
+            <td>โน้ตตัวขาวประจุด</td>
+            <td>Dotted Half Note</td>
+            <td><img src="https://i.ibb.co/y5M3Q36/image.jpg" alt="Dotted Half Note"></td>
+        </tr>
+        <tr>
+            <td>ตัวหยุดโน้ตตัวกลม</td>
+            <td>Whole Rest</td>
+            <td><img src="https://i.ibb.co/NWX0nHS/image.jpg" alt="Whole Rest"></td>
+        </tr>
+        <tr>
+            <td>ตัวหยุดโน้ตตัวขาว</td>
+            <td>Half Rest</td>
+            <td><img src="https://i.ibb.co/4sz53jQ/image.jpg" alt="Half Rest"></td>
+        </tr>
+        <tr>
+            <td>ตัวหยุดโน้ตตัวดำ</td>
+            <td>Quarter Rest</td>
+            <td><img src="https://i.ibb.co/dPhQZk2/image.jpg" alt="Quarter Rest"></td>
+        </tr>
+        <tr>
+            <td>ตัวหยุดโน้ตเขบ็ต 1 ชั้น</td>
+            <td>Eighth Rest</td>
+            <td><img src="https://i.ibb.co/YXG5ZTH/1.jpg" alt="Eighth Rest"></td>
+        </tr>
+        <tr>
+            <td>ตัวหยุดโน้ตเขบ็ต 2 ชั้น</td>
+            <td>Sixteenth Rest</td>
+            <td><img src="https://i.ibb.co/Y3xndJL/2.jpg" alt="Sixteenth Rest"></td>
+        </tr>
+    </table>
+    <button class="start-game" onclick="window.location.href='game.html'">Start Game</button>
+</body>
+</html>

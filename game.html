@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Note Matching Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            background-color: #f0f0f0;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin: 20px auto;
+            max-width: 700px;
+        }
+
+        .header-text {
+            margin: 0;
+            color: #333;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 20px 0;
+            font-size: 18px;
+            color: #333;
+        }
+
+        .score, .mistakes, .timer {
+            margin: 0 10px;
+            padding: 10px 20px;
+            border-radius: 5px;
+        }
+
+        .score {
+            background-color: #4CAF50;
+            color: white;
+        }
+
+        .mistakes {
+            background-color: #FFC107;
+            color: white;
+        }
+
+        .timer {
+            background-color: #ff5722;
+            color: white;
+        }
+
+        .game-board {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            width: 100%;
+            max-width: 700px;
+            margin: 20px auto;
+        }
+
+        .card {
+            width: calc(25% - 20px);
+            height: 150px;
+            margin: 10px;
+            perspective: 1000px;
+        }
+
+        .card-inner {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+            cursor: pointer;
+        }
+
+        .card.flipped .card-inner {
+            transform: rotateY(180deg);
+        }
+
+        .card-front, .card-back {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            backface-visibility: hidden;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-front {
+            background-color: #4CAF50;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            color: white;
+            transition: background-color 0.3s ease;
+            padding: 5px;
+        }
+
+        .card-back {
+            background-color: #FFC107;
+            transform: rotateY(180deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .card:hover .card-front {
+            background-color: #45a049;
+        }
+
+        .card:hover .card-back {
+            background-color: #ffb300;
+        }
+
+        .card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 10px;
+        }
+
+        .next-stage {
+            margin: 20px auto;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            display: none;
+        }
+
+        .next-stage:hover {
+            background-color: #45a049;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgb(0,0,0);
+            background-color: rgba(0,0,0,0.4);
+            padding-top: 60px;
+        }
+
+        .modal-content {
+            background-color: #fefefe;
+            margin: 5% auto;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .close {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        #summaryInfo {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        @media (max-width: 700px) {
+            .card {
+                width: calc(33.333% - 20px);
+                height: 100px;
+            }
+
+            .card img {
+                border-radius: 5px;
+            }
+
+            .next-stage {
+                font-size: 14px;
+                padding: 8px 16px;
+            }
+        }
+
+        @media (max-width: 500px) {
+            .card {
+                width: calc(50% - 20px);
+                height: 100px;
+            }
+
+            .card img {
+                border-radius: 5px;
+            }
+
+            .next-stage {
+                font-size: 12px;
+                padding: 6px 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header-container">
+        <h1 class="header-text">Music Note Matching Game <br> (เกมส์จับคู่โน้ต)</h1>
+    </div>
+    <div class="score-board" id="scoreBoard">
+        <div class="score">คะแนนสะสม: 0 / 360</div>
+        <div class="mistakes">ความผิดพลาด: 0 / 5</div>
+        <div class="timer" id="timer">0:00</div>
+    </div>
+    <div class="game-board" id="gameBoard">
+        <!-- Cards will be dynamically generated here -->
+    </div>
+    <button class="next-stage" id="nextStageButton">Next Stage</button>
+
+    <!-- The Modal -->
+    <div id="myModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>ข้อมูลความรู้</h2>
+            <div id="stageInfo">
+                <!-- Information will be dynamically generated here -->
+            </div>
+            <button id="startGameButton">Start Game</button>
+        </div>
+    </div>
+
+    <!-- Summary Modal -->
+    <div id="summaryModal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2>สรุปผลคะแนน</h2>
+            <div id="summaryInfo">
+                <!-- Summary will be dynamically generated here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const stage1Cards = [
+            { 'name': 'โน้ตตัวกลม', 'img': 'https://i.ibb.co/939bPRs/image.jpg' },
+            { 'name': 'โน้ตตัวขาว', 'img': 'https://i.ibb.co/PhstBBs/image.jpg' },
+            { 'name': 'โน้ตตัวดำ', 'img': 'https://i.ibb.co/zsycKvy/image.jpg' },
+            { 'name': 'โน้ตตัวเขบ็ต1ชั้น', 'img': 'https://i.ibb.co/VvDhnSh/1.jpg' },
+            { 'name': 'โน้ตตัวเขบ็ต2ชั้น', 'img': 'https://i.ibb.co/zVFP0Gz/2.jpg' },
+            { 'name': 'โน้ตตัวตัวขาวประจุด', 'img': 'https://i.ibb.co/y5M3Q36/image.jpg' }
+        ];
+
+        const stage2Cards = [
+            { 'name': 'Whole Note', 'img': 'https://i.ibb.co/939bPRs/image.jpg' },
+            { 'name': 'Half Note', 'img': 'https://i.ibb.co/PhstBBs/image.jpg' },
+            { 'name': 'Quarter Note', 'img': 'https://i.ibb.co/zsycKvy/image.jpg' },
+            { 'name': 'Eighth Note', 'img': 'https://i.ibb.co/VvDhnSh/1.jpg' },
+            { 'name': 'Sixteenth Note', 'img': 'https://i.ibb.co/zVFP0Gz/2.jpg' },
+            { 'name': 'Dotted Half Note', 'img': 'https://i.ibb.co/y5M3Q36/image.jpg' }
+        ];
+
+        const stage3Cards = [
+            { 'name': 'ตัวหยุด<br>โน้ตตัวกลม', 'img': 'https://i.ibb.co/NWX0nHS/image.jpg' },
+            { 'name': 'ตัวหยุด<br>โน้ตตัวขาว', 'img': 'https://i.ibb.co/4sz53jQ/image.jpg' },
+            { 'name': 'ตัวหยุด<br>โน้ตตัวดำ', 'img': 'https://i.ibb.co/dPhQZk2/image.jpg' },
+            { 'name': 'ตัวหยุดโน้ต<br>เขบ็ต 1 ชั้น', 'img': 'https://i.ibb.co/YXG5ZTH/1.jpg' },
+            { 'name': 'ตัวหยุดโน้ต<br>เขบ็ต 2 ชั้น', 'img': 'https://i.ibb.co/Y3xndJL/2.jpg' }
+        ];
+
+        const stage4Cards = [
+            { 'name': 'Whole Rest', 'img': 'https://i.ibb.co/NWX0nHS/image.jpg' },
+            { 'name': 'Half Rest', 'img': 'https://i.ibb.co/4sz53jQ/image.jpg' },
+            { 'name': 'Quarter Rest', 'img': 'https://i.ibb.co/dPhQZk2/image.jpg' },
+            { 'name': 'Eighth Rest', 'img': 'https://i.ibb.co/YXG5ZTH/1.jpg' },
+            { 'name': 'Sixteenth Rest', 'img': 'https://i.ibb.co/Y3xndJL/2.jpg' }
+        ];
+
+        const stage5Cards = [
+            { 'name': 'pair1', 'img': 'https://i.ibb.co/NWX0nHS/image.jpg' },
+            { 'name': 'pair1', 'img': 'https://i.ibb.co/939bPRs/image.jpg' },
+            { 'name': 'pair2', 'img': 'https://i.ibb.co/4sz53jQ/image.jpg' },
+            { 'name': 'pair2', 'img': 'https://i.ibb.co/PhstBBs/image.jpg' },
+            { 'name': 'pair3', 'img': 'https://i.ibb.co/dPhQZk2/image.jpg' },
+            { 'name': 'pair3', 'img': 'https://i.ibb.co/zsycKvy/image.jpg' },
+            { 'name': 'pair4', 'img': 'https://i.ibb.co/YXG5ZTH/1.jpg' },
+            { 'name': 'pair4', 'img': 'https://i.ibb.co/VvDhnSh/1.jpg' },
+            { 'name': 'pair5', 'img': 'https://i.ibb.co/Y3xndJL/2.jpg' },
+            { 'name': 'pair5', 'img': 'https://i.ibb.co/zVFP0Gz/2.jpg' }
+        ];
+
+        const stage6Cards = stage5Cards;
+
+        const maxScore = 360;
+        let currentStage = 1;
+        let gameGrid;
+        let firstCard = null;
+        let secondCard = null;
+        let lockBoard = false;
+        let mistakes = 0;
+        const maxMistakes = 5;
+        let score = 0;
+        const gameBoard = document.getElementById('gameBoard');
+        const nextStageButton = document.getElementById('nextStageButton');
+        const modal = document.getElementById('myModal');
+        const summaryModal = document.getElementById('summaryModal');
+        const closeModal = document.getElementsByClassName('close')[0];
+        const summaryCloseModal = document.getElementsByClassName('close')[1];
+        const stageInfo = document.getElementById('stageInfo');
+        const summaryInfo = document.getElementById('summaryInfo');
+        const startGameButton = document.getElementById('startGameButton');
+        const scoreBoard = document.getElementById('scoreBoard');
+        const timerElement = document.getElementById('timer');
+        let startTime;
+        let timerInterval;
+        let elapsedTime = 0; // เก็บเวลาที่ผ่านมาแล้วในหน่วยวินาที
+
+        const stageDescriptions = {
+            1: 'ด่านที่ 1: ให้นักเรียนจับคู่ชื่อตัวโน้ตภาษาไทยกับรูปภาพตัวโน้ต',
+            2: 'ด่านที่ 2: ให้นักเรียนจับคู่ชื่อตัวโน้ตภาษาอังกฤษกับรูปภาพตัวโน้ต',
+            3: 'ด่านที่ 3: ให้นักเรียนจับคู่ชื่อตัวหยุดตัวโน้ตภาษาไทยกับรูปภาพตัวหยุดตัวโน้ต',
+            4: 'ด่านที่ 4: ให้นักเรียนจับคู่ชื่อตัวหยุดตัวโน้ตภาษาอังกฤษกับรูปภาพตัวหยุดตัวโน้ต',
+            5: 'ด่านที่ 5: ให้นักเรียนจับคู่รูปภาพของตัวโน้ตและตัวหยุด',
+            6: 'ด่านที่ 6: ให้นักเรียนเปิดภาพจับคู่รูปภาพของตัวโน้ตและตัวหยุด'
+        };
+
+        function startGame(stageCards, isStage6 = false) {
+            mistakes = 0;
+            firstCard = null;
+            secondCard = null;
+            lockBoard = false;
+            scoreBoard.innerHTML = `
+                <div class="score">คะแนนสะสม: ${Math.max(score, 0)} / ${maxScore}</div>
+                <div class="mistakes">ความผิดพลาด: ${mistakes} / ${maxMistakes}</div>
+                <div class="timer" id="timer">${timerElement.textContent}</div>
+            `;
+            if (currentStage === 5 || currentStage === 6) {
+                gameGrid = stageCards.map(card => [
+                    { 'name': card.name, 'img': card.img }
+                ]).flat();
+            } else {
+                const textCards = stageCards.map(card => ({ 'name': card.name, 'img': null }));
+                const imageCards = stageCards.map(card => ({ 'name': card.name, 'img': card.img }));
+                gameGrid = textCards.concat(imageCards);
+            }
+            gameGrid = gameGrid.sort(() => 0.5 - Math.random());
+            createBoard(isStage6);
+        }
+
+        function createBoard(isStage6 = false) {
+            gameBoard.innerHTML = '';
+            gameGrid.forEach(item => {
+                const card = document.createElement('div');
+                card.classList.add('card');
+                card.dataset.name = item.name;
+
+                const cardInner = document.createElement('div');
+                cardInner.classList.add('card-inner');
+
+                const cardFront = document.createElement('div');
+                cardFront.classList.add('card-front');
+                const cardBack = document.createElement('div');
+                cardBack.classList.add('card-back');
+                if (item.img) {
+                    const img = document.createElement('img');
+                    img.src = item.img;
+                    if (isStage6) {
+                        cardBack.appendChild(img);
+                    } else {
+                        cardFront.appendChild(img);
+                    }
+                } else {
+                    cardFront.innerHTML = item.name;
+                }
+
+                cardInner.appendChild(cardFront);
+                cardInner.appendChild(cardBack);
+                card.appendChild(cardInner);
+                gameBoard.appendChild(card);
+            });
+
+            document.querySelectorAll('.card').forEach(card => card.addEventListener('click', flipCard));
+        }
+
+        function flipCard() {
+            if (lockBoard) return;
+            if (this === firstCard) return;
+
+            this.classList.add('flipped');
+
+            if (!firstCard) {
+                firstCard = this;
+                return;
+            }
+
+            secondCard = this;
+            lockBoard = true;
+
+            checkForMatch();
+        }
+
+        function checkForMatch() {
+            let isMatch = firstCard.dataset.name === secondCard.dataset.name;
+
+            if (isMatch) {
+                disableCards();
+                score += 10;
+                updateScore();
+            } else {
+                unflipCards();
+                mistakes++;
+                if (mistakes < maxMistakes) {
+                    score -= 5;
+                    updateScore();
+                }
+                if (mistakes >= maxMistakes) {
+                    alert("คุณเปิดคู่ภาพผิดเกินจำนวนที่กำหนด! กรุณาลองใหม่อีกครั้ง");
+                    resetBoard();
+                    startGame(currentStage === 6 ? stage6Cards : (currentStage === 5 ? stage5Cards : (currentStage === 4 ? stage4Cards : (currentStage === 3 ? stage3Cards : (currentStage === 2 ? stage2Cards : stage1Cards)))), currentStage === 6);
+                }
+            }
+        }
+
+        function disableCards() {
+            setTimeout(() => {
+                firstCard.style.visibility = 'hidden';
+                secondCard.style.visibility = 'hidden';
+
+                if (document.querySelectorAll('.card:not(.flipped)').length === 0) {
+                    nextStageButton.style.display = 'block';
+                    stopTimer(); // หยุดจับเวลาเมื่อผู้เล่นจับคู่ครบ
+                }
+
+                resetBoard();
+            }, 1000);
+        }
+
+        function unflipCards() {
+            setTimeout(() => {
+                firstCard.classList.remove('flipped');
+                secondCard.classList.remove('flipped');
+
+                resetBoard();
+            }, 1000);
+        }
+
+        function resetBoard() {
+            [firstCard, secondCard, lockBoard] = [null, null, false];
+        }
+
+        function updateScore() {
+            scoreBoard.innerHTML = `
+                <div class="score">คะแนนสะสม: ${Math.max(score, 0)} / ${maxScore}</div>
+                <div class="mistakes">ความผิดพลาด: ${mistakes} / ${maxMistakes}</div>
+                <div class="timer" id="timer">${timerElement.textContent}</div>
+            `;
+        }
+
+        nextStageButton.addEventListener('click', () => {
+            currentStage++;
+            nextStageButton.style.display = 'none';
+            if (currentStage <= 6) {
+                showModal();
+            } else {
+                showSummary();
+            }
+        });
+
+        function showModal() {
+            if (currentStage <= 6) {
+                modal.style.display = 'block';
+                stageInfo.innerHTML = stageDescriptions[currentStage];
+            } else {
+                alert("คุณผ่านทุกด่านแล้วเย้ยยย!");
+            }
+        }
+
+        closeModal.onclick = function() {
+            modal.style.display = 'none';
+        }
+
+        summaryCloseModal.onclick = function() {
+            summaryModal.style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            } else if (event.target == summaryModal) {
+                summaryModal.style.display = 'none';
+            }
+        }
+
+        startGameButton.addEventListener('click', () => {
+            modal.style.display = 'none';
+            startGame(currentStage === 6 ? stage6Cards : (currentStage === 5 ? stage5Cards : (currentStage === 4 ? stage4Cards : (currentStage === 3 ? stage3Cards : (currentStage === 2 ? stage2Cards : stage1Cards)))), currentStage === 6);
+            startTimer(); // เริ่มจับเวลาใหม่เมื่อผู้เล่นเริ่มด่านใหม่
+        });
+
+        function startTimer() {
+            clearInterval(timerInterval);
+            startTime = new Date();
+            timerInterval = setInterval(() => {
+                const now = new Date();
+                const totalElapsedTime = elapsedTime + Math.floor((now - startTime) / 1000);
+                const minutes = String(Math.floor(totalElapsedTime / 60)).padStart(1, '0');
+                const seconds = String(totalElapsedTime % 60).padStart(2, '0');
+                timerElement.textContent = `${minutes}:${seconds}`;
+                updateScore();
+            }, 1000);
+        }
+
+        function stopTimer() {
+            if (timerInterval) {
+                const now = new Date();
+                elapsedTime += Math.floor((now - startTime) / 1000); // เพิ่มเวลาที่ผ่านไปในรอบนี้เข้าไปใน elapsedTime
+                clearInterval(timerInterval);
+                timerInterval = null;
+            }
+        }
+
+        function parseTimeString(timeString) {
+            const [minutes, seconds] = timeString.split(':').map(Number);
+            return minutes * 60 + seconds;
+        }
+
+        function formatTimeString(totalSeconds) {
+            const minutes = Math.floor(totalSeconds / 60);
+            const seconds = totalSeconds % 60;
+            return `${minutes}:${String(seconds).padStart(2, '0')}`;
+        }
+
+        function showSummary() {
+            summaryModal.style.display = 'block';
+            const now = new Date();
+            const totalSeconds = elapsedTime;
+            const totalTimeString = formatTimeString(totalSeconds);
+            let summaryHtml = `<p>เวลารวมที่ใช้: ${totalTimeString}</p>`;
+            summaryHtml += `<p>คะแนนสะสม: ${score} / ${maxScore}</p>`;
+            summaryInfo.innerHTML = summaryHtml;
+        }
+
+        showModal();
+    </script>
+</body>
+</html>
