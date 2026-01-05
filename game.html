@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Music Note Matching Game (Refactored)</title>
+    <title>Music Note Matching Game (Updated Summary)</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -171,6 +171,7 @@
             max-width: 500px;
             text-align: center;
             position: relative;
+            border-radius: 10px; /* เพิ่มความสวยงาม */
         }
 
         .close {
@@ -193,6 +194,31 @@
         #summaryInfo {
             text-align: center;
             margin-bottom: 20px;
+        }
+
+        /* CSS สำหรับส่วนสรุปผลนักเรียน */
+        .student-summary {
+            background-color: #e8f5e9;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+            margin-bottom: 15px;
+            border-left: 5px solid #4CAF50;
+        }
+
+        .student-summary p {
+            margin: 5px 0;
+            font-size: 16px;
+            color: #333;
+        }
+
+        .score-summary {
+            font-size: 18px;
+            font-weight: bold;
+            color: #333;
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid #ddd;
         }
 
         @media (max-width: 700px) {
@@ -227,7 +253,6 @@
             }
         }
 
-        /* << เพิ่มสไตล์สำหรับฟอร์มใส่ชื่อ ชั้น เลขที่ */
         .input-field {
             margin: 10px 0;
             display: flex;
@@ -255,7 +280,6 @@
     </div>
 
     <div class="score-board" id="scoreBoard">
-        <!-- ข้อมูลคะแนน/ความผิดพลาด/เวลา จะอัปเดตผ่าน JavaScript -->
         <div class="score">คะแนนสะสม: 0 / 360</div>
         <div class="mistakes">ความผิดพลาด: 0 / 5</div>
         <div class="timer" id="timer">0:00</div>
@@ -270,10 +294,7 @@
         <div class="modal-content">
             <span class="close">&times;</span>
             <h2>ข้อมูลความรู้</h2>
-            <div id="stageInfo" style="margin-bottom: 20px;">
-                <!-- ข้อมูลด่านจะถูกใส่ด้วย JavaScript -->
-            </div>
-            <!-- ฟอร์มกรอกข้อมูลนักเรียน เฉพาะด่านแรก -->
+            <div id="stageInfo" style="margin-bottom: 20px;"></div>
             <div id="studentForm" style="margin:20px 0;">
                 <div class="input-field">
                     <label for="studentName">ชื่อ-นามสกุล</label>
@@ -296,7 +317,7 @@
     <div id="summaryModal" class="modal">
         <div class="modal-content">
             <span class="close">&times;</span>
-            <h2>สรุปผลคะแนน</h2>
+            <h2>สรุปผลการแข่งขัน</h2>
             <div id="summaryInfo">
                 <!-- ข้อมูลสรุปจะถูกใส่ด้วย JavaScript -->
             </div>
@@ -339,7 +360,6 @@
             { name: 'Sixteenth Rest', img: 'https://i.ibb.co/Y3xndJL/2.jpg' }
         ];
 
-        // ด่าน 5 และ 6 เป็นการ์ดรูปเหมือนกัน แต่ให้จับคู่รูปภาพสองแบบ
         const stage5Cards = [
             { name: 'pair1', img: 'https://i.ibb.co/NWX0nHS/image.jpg' },
             { name: 'pair1', img: 'https://i.ibb.co/939bPRs/image.jpg' },
@@ -353,10 +373,8 @@
             { name: 'pair5', img: 'https://i.ibb.co/zVFP0Gz/2.jpg' }
         ];
 
-        // ในตัวอย่างใช้ชุดเดียวกันกับด่าน 5
         const stage6Cards = stage5Cards;
 
-        // รวมการ์ดแต่ละด่านไว้ใน stagesData
         const stagesData = {
             1: stage1Cards,
             2: stage2Cards,
@@ -366,7 +384,6 @@
             6: stage6Cards
         };
 
-        // ข้อความอธิบายแต่ละด่าน
         const stageDescriptions = {
             1: 'ด่านที่ 1: ให้นักเรียนจับคู่ชื่อตัวโน้ตภาษาไทยกับรูปภาพตัวโน้ต',
             2: 'ด่านที่ 2: ให้นักเรียนจับคู่ชื่อตัวโน้ตภาษาอังกฤษกับรูปภาพตัวโน้ต',
@@ -389,9 +406,8 @@
 
         let startTime;
         let timerInterval = null;
-        let elapsedTime = 0; // เก็บเวลาสะสม (วินาที)
+        let elapsedTime = 0;
 
-        // ตัวแปรเก็บข้อมูลนักเรียน
         let playerName = '';
         let playerClass = '';
         let playerNumber = '';
@@ -402,7 +418,6 @@
         const modal = document.getElementById('myModal');
         const summaryModal = document.getElementById('summaryModal');
 
-        // ปุ่มปิดโมดัล (มี 2 โมดัล)
         const closeModal = modal.querySelector('.close');
         const summaryCloseModal = summaryModal.querySelector('.close');
 
@@ -413,26 +428,22 @@
         const timerElement = document.getElementById('timer');
         const studentForm = document.getElementById('studentForm');
 
-        /* --------------------- เริ่มต้นแสดง Modal ด่านแรก --------------------- */
-        showModal(); // เมื่อเปิดหน้าเว็บ จะให้เลือก/กรอกข้อมูลก่อนเริ่มด่าน 1
+        showModal();
 
-        /* --------------------- ปุ่ม Next Stage --------------------- */
         nextStageButton.addEventListener('click', () => {
             currentStage++;
             nextStageButton.style.display = 'none'; 
             if (currentStage <= 6) {
                 showModal();
             } else {
-                showSummary(); // ผ่านทุกด่านแล้ว แสดงสรุป
+                showSummary(); 
             }
         });
 
-        /* --------------------- ฟังก์ชันแสดง Modal --------------------- */
         function showModal() {
             if (currentStage <= 6) {
                 modal.style.display = 'block';
                 stageInfo.innerHTML = stageDescriptions[currentStage];
-                // หากไม่ใช่ด่านแรก ให้ซ่อนฟอร์ม
                 if (currentStage > 1) {
                     studentForm.style.display = 'none';
                 }
@@ -441,7 +452,6 @@
             }
         }
 
-        // ปิด Modal ด้วยปุ่มกากบาท
         closeModal.onclick = function() {
             modal.style.display = 'none';
         };
@@ -449,7 +459,6 @@
             summaryModal.style.display = 'none';
         };
 
-        // ปิด Modal ถ้าคลิกข้างนอก
         window.onclick = function(event) {
             if (event.target === modal) {
                 modal.style.display = 'none';
@@ -458,9 +467,7 @@
             }
         };
 
-        /* --------------------- ปุ่ม Start Game ใน Modal --------------------- */
         startGameButton.addEventListener('click', () => {
-            // ด่านแรก: บังคับกรอกข้อมูล
             if (currentStage === 1) {
                 const nameInput = document.getElementById('studentName').value.trim();
                 const classInput = document.getElementById('studentClass').value.trim();
@@ -479,53 +486,40 @@
             startGame(currentStage);
         });
 
-        /* --------------------- ฟังก์ชัน Start Game (เริ่ม/รีเซ็ตด่าน) --------------------- */
         function startGame(stage) {
-            // รีเซ็ตตัวแปรสำคัญ
             mistakes = 0;
             firstCard = null;
             secondCard = null;
             lockBoard = false;
 
-            // อัปเดตหน้าจอคะแนน/ข้อผิดพลาด (timer ใช้ร่วมกัน จับเวลาสะสม)
             updateScoreBoard();
 
-            // ดึงข้อมูลการ์ดของด่าน
             const stageCards = stagesData[stage];
-            // สร้าง gameGrid (ด่าน 5 และ 6 จะโชว์รูป vs รูป)
             const gameGrid = buildGameGrid(stage, stageCards);
 
-            // สุ่มเรียงการ์ด
             gameGrid.sort(() => 0.5 - Math.random());
 
-            // สร้าง DOM Card ลงใน gameBoard
             createBoard(gameGrid, stage === 6);
 
-            // เริ่ม/ต่อเวลา (จับเวลาสะสมทุกด่าน)
             startTimer();
         }
 
-        /* --------------------- ช่วยสร้างโครงสร้างการ์ดในแต่ละด่าน --------------------- */
         function buildGameGrid(stage, stageCards) {
             if (stage === 5 || stage === 6) {
-                // ด่าน 5,6 -> จับคู่รูปภาพกับรูปภาพ
-                //  => ใช้การ์ดที่มี name ซ้ำกันสองใบ
                 return stageCards.map(card => ({ name: card.name, img: card.img }));
             } else {
-                // ด่าน 1-4 -> จับคู่ text กับรูปภาพ
                 const textCards = stageCards.map(card => ({ name: card.name, img: null }));
                 const imageCards = stageCards.map(card => ({ name: card.name, img: card.img }));
                 return textCards.concat(imageCards);
             }
         }
 
-        /* --------------------- สร้าง Card ลงบนกระดาน --------------------- */
         function createBoard(gridData, isStage6 = false) {
             gameBoard.innerHTML = '';
             gridData.forEach(item => {
                 const card = document.createElement('div');
                 card.classList.add('card');
-                card.dataset.name = item.name; // เก็บชื่อไว้เช็คคู่
+                card.dataset.name = item.name;
 
                 const cardInner = document.createElement('div');
                 cardInner.classList.add('card-inner');
@@ -536,36 +530,29 @@
                 const cardBack = document.createElement('div');
                 cardBack.classList.add('card-back');
 
-                // ถ้ามีรูป
                 if (item.img) {
                     const img = document.createElement('img');
                     img.src = item.img;
                     if (isStage6) {
-                        // ด่าน 6 -> รูปอยู่ด้านหลัง
                         cardBack.appendChild(img);
                     } else {
-                        // ด่าน 5 หรืออื่น ๆ -> รูปอยู่ด้านหน้า
                         cardFront.appendChild(img);
                     }
                 } else {
-                    // ถ้าไม่มีรูป -> เอา text ไปใส่ด้านหน้า
                     cardFront.innerHTML = item.name;
                 }
 
-                // ประกอบ
                 cardInner.appendChild(cardFront);
                 cardInner.appendChild(cardBack);
                 card.appendChild(cardInner);
                 gameBoard.appendChild(card);
             });
 
-            // เพิ่ม event flip ให้ทุกการ์ด
             document.querySelectorAll('.card').forEach(cardElement => {
                 cardElement.addEventListener('click', flipCard);
             });
         }
 
-        /* --------------------- การพลิกการ์ด --------------------- */
         function flipCard() {
             if (lockBoard) return;
             if (this === firstCard) return;
@@ -578,12 +565,11 @@
             }
 
             secondCard = this;
-            lockBoard = true; // ล็อกไม่ให้คลิกเพิ่ม
+            lockBoard = true;
 
             checkForMatch();
         }
 
-        /* --------------------- ตรวจสอบการจับคู่ --------------------- */
         function checkForMatch() {
             const isMatch = firstCard.dataset.name === secondCard.dataset.name;
             if (isMatch) {
@@ -596,7 +582,7 @@
                 if (mistakes >= maxMistakes) {
                     alert('คุณเปิดคู่ภาพผิดเกินจำนวนที่กำหนด! กรุณาลองใหม่อีกครั้ง');
                     resetBoard();
-                    startGame(currentStage); // รีเซ็ตที่ด่านเดิม
+                    startGame(currentStage);
                 } else {
                     score -= 5;
                     updateScoreBoard();
@@ -604,16 +590,13 @@
             }
         }
 
-        /* --------------------- ถ้าจับคู่ถูก -> ซ่อนการ์ด --------------------- */
         function disableCards() {
             setTimeout(() => {
                 firstCard.style.visibility = 'hidden';
                 secondCard.style.visibility = 'hidden';
 
-                // เช็คว่าการ์ดที่ยังไม่ flipped เหลือไหม
                 const unflippedCards = document.querySelectorAll('.card:not(.flipped)');
                 if (unflippedCards.length === 0) {
-                    // ผ่านด่าน
                     nextStageButton.style.display = 'block';
                     stopTimer();
                 }
@@ -621,7 +604,6 @@
             }, 1000);
         }
 
-        /* --------------------- ถ้าจับคู่ผิด -> พลิกกลับ --------------------- */
         function unflipCards() {
             setTimeout(() => {
                 firstCard.classList.remove('flipped');
@@ -630,12 +612,10 @@
             }, 1000);
         }
 
-        /* --------------------- รีเซ็ตสถานะการ์ดที่กำลังเปิด --------------------- */
         function resetBoard() {
             [firstCard, secondCard, lockBoard] = [null, null, false];
         }
 
-        /* --------------------- อัปเดต Scoreboard --------------------- */
         function updateScoreBoard() {
             scoreBoard.innerHTML = `
                 <div class="score">คะแนนสะสม: ${Math.max(score, 0)} / ${maxScore}</div>
@@ -644,7 +624,6 @@
             `;
         }
 
-        /* --------------------- จับเวลาสะสม --------------------- */
         function startTimer() {
             clearInterval(timerInterval);
             startTime = new Date();
@@ -667,35 +646,43 @@
             }
         }
 
-        /* --------------------- สรุปผลหลังผ่านทุกด่าน --------------------- */
+        /* --------------------- ส่วนที่แก้ไข: แสดงข้อมูลนักเรียนในหน้าสรุปผล --------------------- */
         function showSummary() {
             summaryModal.style.display = 'block';
             const totalSeconds = elapsedTime;
             const totalTimeString = formatTimeString(totalSeconds);
 
-            let summaryHtml = `<p>เวลารวมที่ใช้: ${totalTimeString}</p>`;
-            summaryHtml += `<p>คะแนนสะสม: ${score} / ${maxScore}</p>`;
+            // สร้าง HTML สำหรับแสดงข้อมูลผู้เล่น
+            let summaryHtml = `
+                <div class="student-summary">
+                    <p><strong>ชื่อ-นามสกุล:</strong> ${playerName}</p>
+                    <p><strong>ชั้น:</strong> ${playerClass}</p>
+                    <p><strong>เลขที่:</strong> ${playerNumber}</p>
+                </div>
+                <div class="score-summary">
+                    <p>เวลารวมที่ใช้: ${totalTimeString}</p>
+                    <p>คะแนนสะสม: ${score} / ${maxScore}</p>
+                </div>
+            `;
             summaryInfo.innerHTML = summaryHtml;
 
-            // ส่งข้อมูลไปยัง Google Sheets
             sendDataToGoogleSheet(playerName, playerClass, playerNumber, score, totalTimeString);
         }
 
-        /* --------------------- Helper: Format Time --------------------- */
         function formatTimeString(totalSeconds) {
             const minutes = Math.floor(totalSeconds / 60);
             const seconds = totalSeconds % 60;
             return `${minutes}:${String(seconds).padStart(2, '0')}`;
         }
 
-        /* --------------------- ส่งข้อมูลไป Google Sheets --------------------- */
         function sendDataToGoogleSheet(name, cls, number, score, totalTimeString) {
-            // URL ของ Web App (Google Apps Script) ของคุณ
             const url = 'https://script.google.com/macros/s/AKfycbxuSWfLo0fE-M2-pjRXsYTN055o9yUP_Phg4pTrLbTfcCwySQc5Txf3umBZs4STPh5H/exec';
 
+            // ใช้ text/plain เพื่อแก้ปัญหา CORS (ตามที่แนะนำในรายงานก่อนหน้า)
+            // หรือหากระบบเดิมของคุณรองรับ application/json ก็สามารถแก้กลับได้
             fetch(url, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 'Content-Type': 'text/plain;charset=utf-8' },
                 body: JSON.stringify({
                     name: name,
                     class: cls,
